@@ -29,26 +29,7 @@
           v-if="currentTab === 'create'"
           class="is-flex is-flex-direction-column"
         >
-          <p>Create a new room</p>
-          <form class="pt-3">
-            <div class="field">
-              <label class="label">Name</label>
-              <div class="control">
-                <input class="input" type="text" placeholder="Text input" />
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Name</label>
-              <div class="control">
-                <input class="input" type="text" placeholder="Text input" />
-              </div>
-            </div>
-            <div class="field pt-3">
-              <div class="control">
-                <button class="button is-link">Submit</button>
-              </div>
-            </div>
-          </form>
+          <CreateRoomForm />
         </div>
         <div
           v-if="currentTab === 'join'"
@@ -70,7 +51,7 @@
             </div>
             <div class="field pt-3">
               <div class="control">
-                <button class="button is-link">Submit</button>
+                <button class="button">Join</button>
               </div>
             </div>
           </form>
@@ -81,6 +62,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
+import CreateRoomForm from '@/components/CreateRoomForm.vue';
 
 const currentTab = ref<string>('create');
 
@@ -88,4 +70,15 @@ function handleTabChange(tab: string) {
   currentTab.value = tab;
 }
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+button {
+  background-color: $primary;
+  color: #fff;
+  border-color: transparent;
+
+  &:hover {
+    color: #fff;
+    background-color: #6259ff;
+  }
+}
+</style>

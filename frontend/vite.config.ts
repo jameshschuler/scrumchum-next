@@ -3,12 +3,12 @@ import vue from '@vitejs/plugin-vue';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import path from 'path';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [basicSsl(), vue()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@shared': path.resolve(__dirname, '../shared/'),
     },
   },
   css: {
