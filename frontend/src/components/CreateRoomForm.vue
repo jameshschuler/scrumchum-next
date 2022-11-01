@@ -14,22 +14,37 @@
       </div>
     </div>
 
+    <div class="field">
+      <label class="label">Cardset</label>
+      <div class="control">
+        <div class="select">
+          <select v-model="formData.cardset">
+            <option selected value="">Select Cardset</option>
+            <option :value="key" v-for="[key, value] in cardsets">
+              {{ value }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <label class="label">Room Code</label>
     <div class="field has-addons">
-      <p class="control">
+      <div class="control">
         <input
           class="input"
           type="text"
           placeholder="(Optional)"
           v-model="formData.roomCode"
         />
-      </p>
-      <p class="control">
-        <button class="button" @click="generateRoomCode()">
+      </div>
+      <div class="control">
+        <a class="button" @click="generateRoomCode()">
           <i class="fa-solid fa-arrows-rotate"></i>
-        </button>
-      </p>
+        </a>
+      </div>
     </div>
+
     <div class="field">
       <label class="label">User Type</label>
       <div class="control">
@@ -45,19 +60,25 @@
     </div>
     <div class="field pt-3">
       <div class="control">
-        <button class="button">Create</button>
+        <button class="button" :disabled="!isFormValid">Create</button>
       </div>
     </div>
   </form>
 </template>
 <script setup lang="ts">
 import { UserType } from '@shared/enums/UserType';
-import { CreateRoomForm } from '@shared/forms/CreateRoomForm';
+import {
+  CreateRoomForm,
+  CreateRoomFormSchema,
+} from '@shared/forms/CreateRoomForm';
 import { ref } from 'vue';
 
 const formData = ref<CreateRoomForm>({
+  cardset: '',
   userType: -1,
 });
+const isFormValid = ref<bool>(true);
+
 const userTypes = ref(
   new Map<number, string>([
     [UserType.Developer, 'Developer'],
@@ -67,23 +88,32 @@ const userTypes = ref(
   ])
 );
 
+const cardsets = ref<Map<string, string>>(
+  new Map<string, string>([
+    ['default', '1, 2, 3, 5, 8,  13, 20, 40, 100, ?, coffee, infinity, pass'],
+  ])
+);
+
 function generateRoomCode() {
   console.log('generateRoomCode');
 }
 
 function handleSubmit() {
-  // TODO: validate formData
-  console.log(formData.value);
-  console.log(UserType);
-  console.log('handleSubmit');
+  try {
+    const result = CreateRoomFormSchema.parse(formData.value);
+    console.log(result);
+  } catch (err) {
+    // TODO: handle errors
+    console.log(err);
+  }
 }
 </script>
 <style lang="scss" scoped>
 .field {
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
-button {
+.button {
   background-color: $primary;
   color: #fff;
   border-color: transparent;
@@ -92,5 +122,9 @@ button {
     color: #fff;
     background-color: #6259ff;
   }
+}
+
+.button[disabled] {
+  background-color: $primary;
 }
 </style>
