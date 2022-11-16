@@ -1,3 +1,3 @@
-export enum Cardset {
-  Default,
+export enum CardSet {
+  Default = "default",
 }

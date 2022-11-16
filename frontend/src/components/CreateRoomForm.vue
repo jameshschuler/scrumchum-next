@@ -7,7 +7,7 @@
         <input
           class="input"
           type="text"
-          placeholder="Name"
+          placeholder="Your Name"
           required
           v-model="formData.name"
         />
@@ -15,12 +15,12 @@
     </div>
 
     <div class="field">
-      <label class="label">Cardset</label>
+      <label class="label">Card Set</label>
       <div class="control">
-        <div class="select">
-          <select v-model="formData.cardset">
-            <option selected value="">Select Cardset</option>
-            <option :value="key" v-for="[key, value] in cardsets">
+        <div class="select is-fullwidth">
+          <select v-model="formData.cardSet">
+            <option selected value="">Select Card Set</option>
+            <option :value="key" v-for="[key, value] in cardSets">
               {{ value }}
             </option>
           </select>
@@ -34,7 +34,7 @@
         <input
           class="input"
           type="text"
-          placeholder="(Optional)"
+          placeholder="(e.g. 123543)"
           v-model="formData.roomCode"
         />
       </div>
@@ -50,9 +50,12 @@
       <div class="control">
         <div class="select">
           <select v-model="formData.userType">
-            <option selected value="-1">Select User Type</option>
-            <option :value="key" v-for="[key, value] in userTypes">
-              {{ value }}
+            <option selected value="">Select User Type</option>
+            <option
+              :value="key.toLowerCase()"
+              v-for="key in Object.keys(UserType)"
+            >
+              {{ key }}
             </option>
           </select>
         </div>
@@ -60,35 +63,25 @@
     </div>
     <div class="field pt-3">
       <div class="control">
-        <button class="button" :disabled="!isFormValid">Create</button>
+        <button class="button">Create</button>
       </div>
     </div>
   </form>
 </template>
 <script setup lang="ts">
+import { useRoomStore } from '@/stores/room';
 import { UserType } from '@shared/enums/UserType';
-import {
-  CreateRoomForm,
-  CreateRoomFormSchema,
-} from '@shared/forms/CreateRoomForm';
+import { CreateRoomForm } from '@shared/forms/CreateRoomForm';
 import { ref } from 'vue';
 
+const roomStore = useRoomStore();
+
 const formData = ref<CreateRoomForm>({
-  cardset: '',
-  userType: -1,
+  cardSet: '',
+  userType: '',
 });
-const isFormValid = ref<bool>(true);
 
-const userTypes = ref(
-  new Map<number, string>([
-    [UserType.Developer, 'Developer'],
-    [UserType.Host, 'Host'],
-    [UserType.QA, 'QA'],
-    [UserType.Spectator, 'Spectator'],
-  ])
-);
-
-const cardsets = ref<Map<string, string>>(
+const cardSets = ref<Map<string, string>>(
   new Map<string, string>([
     ['default', '1, 2, 3, 5, 8,  13, 20, 40, 100, ?, coffee, infinity, pass'],
   ])
@@ -100,11 +93,13 @@ function generateRoomCode() {
 
 function handleSubmit() {
   try {
-    const result = CreateRoomFormSchema.parse(formData.value);
-    console.log(result);
+    // const result = CreateRoomFormSchema.parse(formData.value);
+    // console.log(result);
+
+    roomStore.createRoom();
   } catch (err) {
     // TODO: handle errors
-    console.log(err);
+    console.error(err);
   }
 }
 </script>

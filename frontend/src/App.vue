@@ -7,20 +7,9 @@
 import Header from '@/components/Header.vue';
 import Main from '@/components/Main.vue';
 import Footer from '@/components/Footer.vue';
-import { io } from 'socket.io-client';
+import { useCommonStore } from '@/stores/common';
 
-const url = import.meta.env.VITE_BACKEND_URL;
-const socket = io('https://localhost:9000/');
-
-console.log(socket);
-
-socket.on('connect', () => {
-  console.log(socket.id);
-});
-
-socket.on('disconnect', () => {
-  console.log(socket.id);
-});
+useCommonStore().setupSocketConnection();
 </script>
 <style lang="scss">
 html,

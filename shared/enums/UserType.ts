@@ -1,6 +1,6 @@
 export enum UserType {
-  Developer,
-  Host,
-  QA,
-  Spectator,
+  Developer = "developer",
+  Host = "host",
+  QA = "qa",
+  Spectator = "spectator",
 }

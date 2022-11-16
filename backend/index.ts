@@ -1,46 +1,51 @@
-import express, { Express, Request, Response } from 'express';
-import dotenv from 'dotenv';
-import https from 'https';
-import { Server } from 'socket.io';
-import fs from 'fs';
-import cors from 'cors';
+import express, { Express, Request, Response } from "express";
+import dotenv from "dotenv";
+import https from "https";
+import { Server } from "socket.io";
+import fs from "fs";
+import cors from "cors";
+// import { Events } from "../shared/enums/Events";
 
 dotenv.config();
 
 const app: Express = express();
 
-app.use(cors(
-  {
-    origin: "https://127.0.0.1:9001"
-  }
-));
+app.use(
+  cors({
+    origin: "https://127.0.0.1:9001",
+  }),
+);
 
 const port = process.env.PORT;
 
-const httpsOptions : https.ServerOptions = {
-  key: fs.readFileSync('./security/cert.key'),
-  cert: fs.readFileSync('./security/cert.pem')
-}
+const httpsOptions: https.ServerOptions = {
+  key: fs.readFileSync("./security/cert.key"),
+  cert: fs.readFileSync("./security/cert.pem"),
+};
 
 const server = https.createServer(httpsOptions, app);
 
 const io = new Server(server, {
   cors: {
     origin: "https://127.0.0.1:9001",
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST"],
+  },
 });
 
-app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Welcome!' });
+app.get("/", (req: Request, res: Response) => {
+  res.json({ message: "Welcome!" });
 });
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
+io.on("connection", (socket) => {
+  console.log("a user connected" + Math.floor(Math.random() * 100));
+
+  socket.on("CreateRoom", (payload: any) => {
+    console.log("received payload ", payload);
+  });
 });
 
-io.on('disconnect', (socket) => {
-  console.log('a user disconnected');
+io.on("disconnect", (socket) => {
+  console.log("a user disconnected");
 });
 
 server.listen(port, () => {
