@@ -1,39 +1,41 @@
 <template>
   <div>
     <button @click="createRoom">Create Room</button>
-    <button @click="joinRoom">Join Room</button>
+    <!-- <button @click="joinRoom">Join Room</button> -->
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { HubConnectionBuilder, HubConnection } from "@microsoft/signalr";
+import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import { onMounted, ref } from "vue";
 const hubConnection = ref<HubConnection | null>(null);
 
-async function createRoom() {
-  try {
-    const response = await hubConnection.value?.invoke("CreateRoom", {
-      username: "Bobby",
-    });
-    console.log(response);
-  } catch (err) {
-    console.error(err);
-  }
-}
+const baseUrl = "https://localhost:7032";
 
-async function joinRoom() {
-  const response = await hubConnection.value?.invoke("JoinRoom", {
-    roomCode: "",
-    name: "",
+async function createRoom() {
+  const response = await fetch(`${baseUrl}/api/room`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name: "test" }),
   });
-  console.log(response);
+
+  const responseData = await response.json();
+  if (responseData.success) {
+    console.log(responseData.data);
+    const { roomCode, name } = responseData.data;
+    await hubConnection.value?.invoke("JoinRoom", {
+      roomCode,
+      name,
+    });
+  }
 }
 
 // TODO: make connection to hub
 onMounted(() => {
   console.log("connecting to hub...");
-  let connection = new HubConnectionBuilder()
-    .withUrl("https://localhost:7032/planning")
-    .build();
+  let connection = new HubConnectionBuilder().withUrl(`${baseUrl}/room`).build();
 
   hubConnection.value = connection;
 
@@ -43,8 +45,13 @@ onMounted(() => {
 
   if (hubConnection.value) {
     hubConnection.value.start().then(() => {
-      hubConnection.value!.on("Connected", (response) => {
+      const hub = hubConnection.value!;
+      hub.on("Connected", (response) => {
         console.log(response);
+      });
+
+      hub.on("JoinedRoom", () => {
+        console.log("do something!");
       });
     });
   }

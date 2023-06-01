@@ -21,7 +21,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(appBuilder =>
     appBuilder
-        .WithOrigins("http://127.0.0.1:5173")
+        .WithOrigins("http://localhost:5173")
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials()
@@ -31,6 +31,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<PlanningHub>("/planning");
+app.MapHub<RoomHub>("/room");
 
 app.Run();
