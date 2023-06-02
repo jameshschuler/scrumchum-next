@@ -6,7 +6,10 @@ namespace Scrumchum.Models.Request;
 public class CreateRoomRequest
 {
     [Required] 
-    public string Name { get; set; } = null!;
+    public string Username { get; set; } = null!;
     
-    public UserRole Role { get; set; }
+    public string? RoomName { get; set; }
+
+    [Required]
+    public UserRole Role { get; set; } = UserRole.Spectator;
 }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Scrumchum.Models.Enums;
 
 namespace Scrumchum.Models.Request;
 
@@ -8,5 +9,8 @@ public class JoinRoomRequest
     public string RoomCode { get; set; } = null!;
 
     [Required] 
-    public string Name { get; set; } = null!;
+    public string Username { get; set; } = null!;
+    
+    [Required]
+    public UserRole Role { get; set; } = UserRole.Spectator;
 }

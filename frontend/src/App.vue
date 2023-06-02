@@ -1,73 +1,95 @@
 <template>
   <div>
+    <input type="text" v-model="username" placeholder="Username" />
+    <select v-model="role">
+      <option v-for="role in userRoleOptions" :value="role.value">{{ role.name }}</option>
+    </select>
+    <input type="text" v-model="roomCode" placeholder="Room Code" />
+    <input type="text" v-model="roomName" placeholder="Room Name" />
+    <br />
     <button @click="createRoom">Create Room</button>
-    <!-- <button @click="joinRoom">Join Room</button> -->
+    <button @click="joinRoom">Join Room</button>
+    <router-view></router-view>
   </div>
 </template>
 <script setup lang="ts">
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
-import { onMounted, ref } from "vue";
-const hubConnection = ref<HubConnection | null>(null);
+import useHub from "@/composables/useHub";
+import { useRoomStore } from "@/stores/roomStore";
+import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { HubResponse } from "./types/common";
+import { RoomResponse } from "./types/room";
+import { UserJoinedResponse, UserRole } from "./types/user";
 
-const baseUrl = "https://localhost:7032";
+const { connection } = useHub();
+const router = useRouter();
+
+const roomStore = useRoomStore();
+
+const role = ref<UserRole | number>(-1);
+const username = ref<string>();
+const roomCode = ref<string>();
+const roomName = ref<string>();
+
+const userRoleOptions = computed(() => {
+  const keys = Object.keys(UserRole).filter((v) => isNaN(Number(v)));
+  const optionsMap = keys.map((key: string) => {
+    return {
+      name: key.replace(/([a-z])([A-Z])/g, "$1 $2"),
+      value: Number(UserRole[key as any]),
+    };
+  });
+  optionsMap.unshift({ name: "Select Role", value: -1 });
+  return optionsMap;
+});
 
 async function createRoom() {
-  const response = await fetch(`${baseUrl}/api/room`, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name: "test" }),
+  const response = await connection.value.invoke<HubResponse<RoomResponse>>("CreateRoom", {
+    role: role.value,
+    username: username.value,
+    roomName: roomName.value,
   });
 
-  const responseData = await response.json();
-  if (responseData.success) {
-    console.log(responseData.data);
-    const { roomCode, name } = responseData.data;
-    await hubConnection.value?.invoke("JoinRoom", {
+  if (response.success && response.data) {
+    const { user, roomCode, roomLink } = response.data;
+    roomStore.currentRoom = {
       roomCode,
-      name,
-    });
+      roomLink,
+      users: [],
+    };
+    roomStore.me = user;
+    router.push({ name: "Lobby", params: { roomCode } });
   }
 }
 
-// TODO: make connection to hub
-onMounted(() => {
-  console.log("connecting to hub...");
-  let connection = new HubConnectionBuilder().withUrl(`${baseUrl}/room`).build();
+async function joinRoom() {
+  const response = await connection.value.invoke<HubResponse<RoomResponse>>("JoinRoom", {
+    role: role.value,
+    username: username.value,
+    roomCode: roomCode.value,
+  });
 
-  hubConnection.value = connection;
-
-  // connection.on("send", (data) => {
-  //   console.log(data);
-  // });
-
-  if (hubConnection.value) {
-    hubConnection.value.start().then(() => {
-      const hub = hubConnection.value!;
-      hub.on("Connected", (response) => {
-        console.log(response);
-      });
-
-      hub.on("JoinedRoom", () => {
-        console.log("do something!");
-      });
-    });
+  if (response.success && response.data) {
+    const { user, roomCode, roomLink } = response.data;
+    roomStore.currentRoom = {
+      roomCode,
+      roomLink,
+      users: [],
+    };
+    roomStore.me = user;
+    router.push({ name: "Lobby", params: { roomCode } });
   }
+}
+
+onMounted(async () => {
+  await connection.value.start();
+  connection.value.on("Connected", (response) => {
+    console.log(response);
+  });
+
+  connection.value.on("UserJoined", (response: UserJoinedResponse) => {
+    roomStore.roomUsers.set(response.roomCode, response.users);
+  });
 });
 </script>
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+<style scoped></style>
