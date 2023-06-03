@@ -17,11 +17,13 @@ import useHub from "@/composables/useHub";
 import { useRoomStore } from "@/stores/roomStore";
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import useStorage from "./composables/useStorage";
 import { HubResponse } from "./types/common";
 import { RoomResponse } from "./types/room";
 import { UserJoinedResponse, UserRole } from "./types/user";
 
 const { connection } = useHub();
+const { storeUser } = useStorage();
 const router = useRouter();
 
 const roomStore = useRoomStore();
@@ -58,7 +60,10 @@ async function createRoom() {
       users: [],
     };
     roomStore.me = user;
+    storeUser(user.userId!);
     router.push({ name: "Lobby", params: { roomCode } });
+  } else {
+    console.log(response.validationErrors);
   }
 }
 
@@ -77,7 +82,11 @@ async function joinRoom() {
       users: [],
     };
     roomStore.me = user;
+    storeUser(user.userId!);
+
     router.push({ name: "Lobby", params: { roomCode } });
+  } else {
+    console.log(response.validationErrors);
   }
 }
 
@@ -89,6 +98,10 @@ onMounted(async () => {
 
   connection.value.on("UserJoined", (response: UserJoinedResponse) => {
     roomStore.roomUsers.set(response.roomCode, response.users);
+  });
+
+  connection.value.onclose(() => {
+    // TODO:
   });
 });
 </script>

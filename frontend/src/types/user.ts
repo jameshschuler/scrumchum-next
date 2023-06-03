@@ -1,6 +1,7 @@
 export interface User {
   username: string;
   role: UserRole;
+  userId?: number;
 }
 
 export enum UserRole {
