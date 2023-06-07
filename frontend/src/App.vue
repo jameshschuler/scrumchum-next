@@ -13,17 +13,18 @@
   </div>
 </template>
 <script setup lang="ts">
-import useHub from "@/composables/useHub";
 import { useRoomStore } from "@/stores/roomStore";
-import { computed, onMounted, ref } from "vue";
+import { HubConnection } from "@microsoft/signalr";
+import { computed, inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import useStorage from "./composables/useStorage";
 import { HubResponse } from "./types/common";
 import { RoomResponse } from "./types/room";
 import { UserJoinedResponse, UserRole } from "./types/user";
 
-const { connection } = useHub();
-const { storeUser } = useStorage();
+const connection = inject<HubConnection>("hubConnection")!;
+
+const { storeUserId } = useStorage();
 const router = useRouter();
 
 const roomStore = useRoomStore();
@@ -46,7 +47,7 @@ const userRoleOptions = computed(() => {
 });
 
 async function createRoom() {
-  const response = await connection.value.invoke<HubResponse<RoomResponse>>("CreateRoom", {
+  const response = await connection.invoke<HubResponse<RoomResponse>>("CreateRoom", {
     role: role.value,
     username: username.value,
     roomName: roomName.value,
@@ -60,7 +61,7 @@ async function createRoom() {
       users: [],
     };
     roomStore.me = user;
-    storeUser(user.userId!);
+    storeUserId(user.userId!);
     router.push({ name: "Lobby", params: { roomCode } });
   } else {
     console.log(response.validationErrors);
@@ -68,7 +69,7 @@ async function createRoom() {
 }
 
 async function joinRoom() {
-  const response = await connection.value.invoke<HubResponse<RoomResponse>>("JoinRoom", {
+  const response = await connection.invoke<HubResponse<RoomResponse>>("JoinRoom", {
     role: role.value,
     username: username.value,
     roomCode: roomCode.value,
@@ -82,7 +83,7 @@ async function joinRoom() {
       users: [],
     };
     roomStore.me = user;
-    storeUser(user.userId!);
+    storeUserId(user.userId!);
 
     router.push({ name: "Lobby", params: { roomCode } });
   } else {
@@ -91,16 +92,15 @@ async function joinRoom() {
 }
 
 onMounted(async () => {
-  await connection.value.start();
-  connection.value.on("Connected", (response) => {
+  connection.on("Connected", (response) => {
     console.log(response);
   });
 
-  connection.value.on("UserJoined", (response: UserJoinedResponse) => {
+  connection.on("UserJoined", (response: UserJoinedResponse) => {
     roomStore.roomUsers.set(response.roomCode, response.users);
   });
 
-  connection.value.onclose(() => {
+  connection.onclose(() => {
     // TODO:
   });
 });

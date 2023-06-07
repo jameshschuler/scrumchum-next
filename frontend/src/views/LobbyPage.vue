@@ -7,13 +7,20 @@
   </div>
 </template>
 <script setup lang="ts">
+import useStorage from "@/composables/useStorage";
 import { useRoomStore } from "@/stores/roomStore";
-import { computed, onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { HubConnection } from "@microsoft/signalr";
+import { computed, inject, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+const connection = inject<HubConnection>("hubConnection")!;
 
 const roomStore = useRoomStore();
 
+const { getUser, clearUser } = useStorage();
 const route = useRoute();
+const router = useRouter();
+
 const roomCode = ref<string>(route.params.roomCode as string);
 
 const users = computed(() => {
@@ -21,10 +28,28 @@ const users = computed(() => {
 });
 const heading = computed(() => `Room ${roomStore.currentRoom?.roomCode}`);
 
-onMounted(() => {
-  // TODO: check localstorage for user id
-  // If found send user id and room code, send rejoin room event
-  console.log("mounted");
+onMounted(async () => {
+  if (!roomStore.currentRoom) {
+    const userId = getUser();
+    const response = await connection.invoke("RejoinRoom", {
+      roomCode: roomCode.value,
+      userId,
+    });
+
+    if (response.success && response.data) {
+      const { user, roomCode, roomLink } = response.data;
+      roomStore.currentRoom = {
+        roomCode,
+        roomLink,
+        users: [],
+      };
+      roomStore.me = user;
+    } else {
+      clearUser();
+      console.error(response.validationErrors);
+      router.push({ name: "Landing" });
+    }
+  }
 });
 </script>
 <style lang="scss" scoped></style>

@@ -8,16 +8,19 @@ export default function useHub() {
     new HubConnectionBuilder().withUrl(`${baseUrl}/room`).build()
   );
 
-  function getConnection() {
+  async function getConnection() {
     if (!connection.value) {
       connection.value = new HubConnectionBuilder().withUrl(`${baseUrl}/room`).build();
     }
 
+    await connection.value.start();
+
+    //await connection.start();
     return connection.value;
   }
 
   return {
-    connection,
+    //connection,
     getConnection,
   };
 }

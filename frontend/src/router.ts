@@ -1,7 +1,6 @@
 import LandingPage from "@/views/LandingPage.vue";
 import LobbyPage from "@/views/LobbyPage.vue";
 import { createRouter, createWebHistory } from "vue-router";
-import { useRoomStore } from "./stores/roomStore";
 
 const routes = [
   { path: "/", name: "Landing", component: LandingPage },
@@ -13,14 +12,14 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, _from, next) => {
-  const roomStore = useRoomStore();
+// router.beforeEach((to, _from, next) => {
+//   const roomStore = useRoomStore();
 
-  if (to.name === "Lobby" && !roomStore.currentRoom) {
-    next({ name: "Landing" });
-  } else {
-    next();
-  }
-});
+//   if (to.name === "Lobby" && !roomStore.currentRoom) {
+//     next({ name: "Landing" });
+//   } else {
+//     next();
+//   }
+// });
 
 export default router;
