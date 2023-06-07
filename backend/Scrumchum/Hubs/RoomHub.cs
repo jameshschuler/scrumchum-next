@@ -105,7 +105,39 @@ public class RoomHub : Hub
         response.Data = new RoomResponse(room.RoomCode, "TODO", room.RoomName, new UserResponse(user.Username, user.Role, user.UserId));
         return response;
     }
-    
+
+    public async Task<HubResponse<RoomResponse>> RejoinRoom(RejoinRoomRequest request)
+    {
+        var response = new HubResponse<RoomResponse>();
+        var validator = new RejoinRoomRequestValidator();
+        var result = await validator.ValidateAsync(request);
+
+        if (!result.IsValid)
+        {
+            response.ValidationErrors = result.Errors.Select(e => new ErrorResponse(e.PropertyName, e.ErrorMessage));
+            return response;
+        }
+        
+        if (!TempDb.Rooms.ContainsKey(request.RoomCode!))
+        {
+            response.ErrorMessage = $"Room not found with provided code [{request.RoomCode}]";
+            return response;
+        }
+
+        var room = TempDb.Rooms[request.RoomCode!];
+        var user = room.Users.FirstOrDefault(u => u.UserId == request.UserId!);
+        if (user == null)
+        {
+            response.ErrorMessage = $"User not found in room [{request.RoomCode}]";
+            return response;
+        }
+
+        user.ConnectionId = Context.ConnectionId;
+        response.Data = new RoomResponse(room.RoomCode, "TODO", room.RoomName, new UserResponse(user.Username, user.Role, user.UserId));
+
+        return response;
+    }
+
     public override async Task OnConnectedAsync()
     {
         await Clients.Caller.SendAsync("Connected", new { Message = "Hello!" });
