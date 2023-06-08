@@ -80,7 +80,6 @@ public class RoomHub : Hub
         }
 
         var room = TempDb.Rooms[request.RoomCode!];
-        // TODO: If user rejoins they'll have a different connection id
         if (room.Users.FirstOrDefault(u => u.ConnectionId == Context.ConnectionId) != null)
         {
             response.ErrorMessage = $"You've already joined this room [{request.RoomCode}]";
