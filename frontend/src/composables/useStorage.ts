@@ -1,11 +1,11 @@
 export default function useStorage() {
-  function storeUserId(userId: number) {
+  function storeUserId(userId: string) {
     localStorage.setItem("userId", JSON.stringify(userId));
   }
 
-  function getUser(): number | null {
+  function getUser(): string | null {
     const userId = localStorage.getItem("userId");
-    return userId ? parseInt(userId) : null;
+    return userId ?? null;
   }
 
   function clearUser() {

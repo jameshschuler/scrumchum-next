@@ -53,9 +53,11 @@ async function createRoom() {
     roomName: roomName.value,
   });
 
+  // TODO: this is same as joinRoom...move to shared function
   if (response.success && response.data) {
-    const { user, roomCode, roomLink } = response.data;
+    const { hostUserId, user, roomCode, roomLink } = response.data;
     roomStore.currentRoom = {
+      hostUserId,
       roomCode,
       roomLink,
       users: [],
@@ -76,8 +78,9 @@ async function joinRoom() {
   });
 
   if (response.success && response.data) {
-    const { user, roomCode, roomLink } = response.data;
+    const { hostUserId, user, roomCode, roomLink } = response.data;
     roomStore.currentRoom = {
+      hostUserId,
       roomCode,
       roomLink,
       users: [],

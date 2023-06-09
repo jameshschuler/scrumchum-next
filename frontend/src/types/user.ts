@@ -1,13 +1,14 @@
 export interface User {
   username: string;
   role: UserRole;
-  userId?: number;
+  userId?: string;
+  isHost: boolean;
 }
 
 export enum UserRole {
   Dev = 0,
   QA = 1,
-  ProjectManager = 2,
+  ProductOwner = 2,
   Spectator = 3,
 }
 

@@ -4,7 +4,7 @@ namespace Scrumchum.Models.Request;
 
 public class RejoinRoomRequest
 {
-    public int? UserId { get; set; }
+    public Guid? UserId { get; set; }
     
     public string? RoomCode { get; set; }
 }

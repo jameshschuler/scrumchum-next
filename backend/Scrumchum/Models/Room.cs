@@ -7,4 +7,6 @@ public class Room
     public string? RoomName { get; set; }
 
     public IList<User> Users { get; set; } = new List<User>();
+    
+    public Guid HostUserId { get; set; }
 }

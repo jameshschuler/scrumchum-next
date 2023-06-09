@@ -9,6 +9,8 @@
 <script setup lang="ts">
 import useStorage from "@/composables/useStorage";
 import { useRoomStore } from "@/stores/roomStore";
+import { HubResponse } from "@/types/common";
+import { RoomResponse } from "@/types/room";
 import { HubConnection } from "@microsoft/signalr";
 import { computed, inject, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -31,14 +33,15 @@ const heading = computed(() => `Room ${roomStore.currentRoom?.roomCode}`);
 onMounted(async () => {
   if (!roomStore.currentRoom) {
     const userId = getUser();
-    const response = await connection.invoke("RejoinRoom", {
+    const response = await connection.invoke<HubResponse<RoomResponse>>("RejoinRoom", {
       roomCode: roomCode.value,
       userId,
     });
 
     if (response.success && response.data) {
-      const { user, roomCode, roomLink } = response.data;
+      const { hostUserId, user, roomCode, roomLink } = response.data;
       roomStore.currentRoom = {
+        hostUserId,
         roomCode,
         roomLink,
         users: [],
