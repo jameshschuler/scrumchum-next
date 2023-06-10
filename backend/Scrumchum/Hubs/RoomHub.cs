@@ -127,7 +127,7 @@ public class RoomHub : Hub
         }
 
         var room = TempDb.Rooms[request.RoomCode!];
-        var user = room.Users.FirstOrDefault(u => u.UserId == request.UserId!);
+        var user = room.Users.FirstOrDefault(u => u.UserId == Guid.Parse(request.UserId!));
         if (user == null)
         {
             response.ErrorMessage = $"User not found in room [{request.RoomCode}]";

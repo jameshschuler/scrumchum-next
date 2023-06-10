@@ -5,7 +5,7 @@ export default function useStorage() {
 
   function getUser(): string | null {
     const userId = localStorage.getItem("userId");
-    return userId ?? null;
+    return userId ? JSON.parse(userId) : null;
   }
 
   function clearUser() {

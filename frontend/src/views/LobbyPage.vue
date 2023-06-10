@@ -7,15 +7,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import useStorage from "@/composables/useStorage";
-import { useRoomStore } from "@/stores/roomStore";
-import { HubResponse } from "@/types/common";
-import { RoomResponse } from "@/types/room";
-import { HubConnection } from "@microsoft/signalr";
-import { computed, inject, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import useStorage from '@/composables/useStorage';
+import { useRoomStore } from '@/stores/roomStore';
+import { HubResponse } from '@/types/common';
+import { RoomResponse } from '@/types/room';
+import { HubConnection } from '@microsoft/signalr';
+import { computed, inject, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-const connection = inject<HubConnection>("hubConnection")!;
+const connection = inject<HubConnection>('hubConnection')!;
 
 const roomStore = useRoomStore();
 
@@ -33,7 +33,7 @@ const heading = computed(() => `Room ${roomStore.currentRoom?.roomCode}`);
 onMounted(async () => {
   if (!roomStore.currentRoom) {
     const userId = getUser();
-    const response = await connection.invoke<HubResponse<RoomResponse>>("RejoinRoom", {
+    const response = await connection.invoke<HubResponse<RoomResponse>>('RejoinRoom', {
       roomCode: roomCode.value,
       userId,
     });
@@ -50,7 +50,7 @@ onMounted(async () => {
     } else {
       clearUser();
       console.error(response.validationErrors);
-      router.push({ name: "Landing" });
+      router.push({ name: 'Landing' });
     }
   }
 });
