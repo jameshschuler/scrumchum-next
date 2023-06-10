@@ -23,6 +23,7 @@ public class JoinRoomRequestValidator : AbstractValidator<JoinRoomRequest>
             .MaximumLength(20);
 
         RuleFor(r => r.RoomCode)
+            .Length(4)
             .NotEmpty();
 
         RuleFor(r => r.Role)

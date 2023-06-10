@@ -1,9 +1,6 @@
 <template>
   <div>
     <input type="text" v-model="username" placeholder="Username" />
-    <select v-model="role">
-      <option v-for="role in userRoleOptions" :value="role.value">{{ role.name }}</option>
-    </select>
     <input type="text" v-model="roomCode" placeholder="Room Code" />
     <input type="text" v-model="roomName" placeholder="Room Name" />
     <br />
@@ -13,16 +10,16 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useRoomStore } from "@/stores/roomStore";
-import { HubConnection } from "@microsoft/signalr";
-import { computed, inject, onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
-import useStorage from "./composables/useStorage";
-import { HubResponse } from "./types/common";
-import { RoomResponse } from "./types/room";
-import { UserJoinedResponse, UserRole } from "./types/user";
+import { useRoomStore } from '@/stores/roomStore';
+import { HubConnection } from '@microsoft/signalr';
+import { inject, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import useStorage from './composables/useStorage';
+import { HubResponse } from './types/common';
+import { RoomResponse } from './types/room';
+import { UserJoinedResponse, UserRole } from './types/user';
 
-const connection = inject<HubConnection>("hubConnection")!;
+const connection = inject<HubConnection>('hubConnection')!;
 
 const { storeUserId } = useStorage();
 const router = useRouter();
@@ -34,20 +31,8 @@ const username = ref<string>();
 const roomCode = ref<string>();
 const roomName = ref<string>();
 
-const userRoleOptions = computed(() => {
-  const keys = Object.keys(UserRole).filter((v) => isNaN(Number(v)));
-  const optionsMap = keys.map((key: string) => {
-    return {
-      name: key.replace(/([a-z])([A-Z])/g, "$1 $2"),
-      value: Number(UserRole[key as any]),
-    };
-  });
-  optionsMap.unshift({ name: "Select Role", value: -1 });
-  return optionsMap;
-});
-
 async function createRoom() {
-  const response = await connection.invoke<HubResponse<RoomResponse>>("CreateRoom", {
+  const response = await connection.invoke<HubResponse<RoomResponse>>('CreateRoom', {
     role: role.value,
     username: username.value,
     roomName: roomName.value,
@@ -64,14 +49,14 @@ async function createRoom() {
     };
     roomStore.me = user;
     storeUserId(user.userId!);
-    router.push({ name: "Lobby", params: { roomCode } });
+    router.push({ name: 'Lobby', params: { roomCode } });
   } else {
     console.log(response.validationErrors);
   }
 }
 
 async function joinRoom() {
-  const response = await connection.invoke<HubResponse<RoomResponse>>("JoinRoom", {
+  const response = await connection.invoke<HubResponse<RoomResponse>>('JoinRoom', {
     role: role.value,
     username: username.value,
     roomCode: roomCode.value,
@@ -88,18 +73,18 @@ async function joinRoom() {
     roomStore.me = user;
     storeUserId(user.userId!);
 
-    router.push({ name: "Lobby", params: { roomCode } });
+    router.push({ name: 'Lobby', params: { roomCode } });
   } else {
     console.log(response.validationErrors);
   }
 }
 
 onMounted(async () => {
-  connection.on("Connected", (response) => {
+  connection.on('Connected', (response) => {
     console.log(response);
   });
 
-  connection.on("UserJoined", (response: UserJoinedResponse) => {
+  connection.on('UserJoined', (response: UserJoinedResponse) => {
     roomStore.roomUsers.set(response.roomCode, response.users);
   });
 
