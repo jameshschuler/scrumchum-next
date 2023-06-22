@@ -1,16 +1,48 @@
 <template>
-  <h1>Lobby - {{ heading }}</h1>
-  <div>
-    <p v-for="user in users">
-      {{ user.username }}
-    </p>
-  </div>
+  <v-toolbar>
+    <v-toolbar-title>{{ heading }}</v-toolbar-title>
+    <v-spacer></v-spacer>
+    <v-btn icon>
+      <v-icon :icon="mdiLogout" />
+    </v-btn>
+  </v-toolbar>
+  <v-container>
+    <v-row>
+      <v-col cols="3">
+        <p>User List</p>
+        <v-list lines="one">
+          <v-list-item
+            v-for="user in users"
+            :key="user.userId"
+            :title="user.username"
+          ></v-list-item>
+        </v-list>
+      </v-col>
+      <v-col cols="6">
+        <p>Center</p>
+      </v-col>
+      <v-col cols="3">
+        <p>Card Queue</p>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <p>Voting Results</p>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <p>Card List</p>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 <script setup lang="ts">
 import useStorage from '@/composables/useStorage';
 import { useRoomStore } from '@/stores/roomStore';
 import { HubResponse } from '@/types/common';
 import { RoomResponse } from '@/types/room';
+import { mdiLogout } from '@mdi/js';
 import { HubConnection } from '@microsoft/signalr';
 import { computed, inject, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

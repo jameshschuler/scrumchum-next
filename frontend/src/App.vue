@@ -1,11 +1,5 @@
 <template>
   <div>
-    <input type="text" v-model="username" placeholder="Username" />
-    <input type="text" v-model="roomCode" placeholder="Room Code" />
-    <input type="text" v-model="roomName" placeholder="Room Name" />
-    <br />
-    <button @click="createRoom">Create Room</button>
-    <button @click="joinRoom">Join Room</button>
     <router-view></router-view>
   </div>
 </template>

@@ -1,6 +1,7 @@
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import { createPinia } from "pinia";
 import { createApp } from "vue";
+import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
 import App from "./App.vue";
 import router from "./router";
 
@@ -15,6 +16,13 @@ import "vuetify/styles";
 const vuetify = createVuetify({
   components,
   directives,
+  icons: {
+    defaultSet: 'mdi',
+    aliases,
+    sets: {
+      mdi,
+    },
+  },
 });
 
 const app = createApp(App);
