@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.SignalR;
 using Scrumchum.Models;
+using Scrumchum.Models.Enums;
 using Scrumchum.Models.Request;
 using Scrumchum.Models.Response;
 
@@ -18,6 +19,17 @@ public class RoomHub : Hub
             {
                 RoomCode = "1234",
                 RoomName = "Test Room",
+                Users = new List<User>()
+                {
+                    new ()
+                    {
+                        ConnectionId = "",
+                        IsHost = true,
+                        Username = "Test User Host",
+                        UserId = Guid.NewGuid(),
+                        Role = UserRole.ProductOwner
+                    }
+                }
             });
         }
     }
@@ -108,9 +120,9 @@ public class RoomHub : Hub
         return response;
     }
 
-    public async Task<HubResponse<RoomResponse>> RejoinRoom(RejoinRoomRequest request)
+    public async Task<HubResponse<RejoinRoomResponse>> RejoinRoom(RejoinRoomRequest request)
     {
-        var response = new HubResponse<RoomResponse>();
+        var response = new HubResponse<RejoinRoomResponse>();
         var validator = new RejoinRoomRequestValidator();
         var result = await validator.ValidateAsync(request);
 
@@ -134,9 +146,14 @@ public class RoomHub : Hub
             return response;
         }
 
-        user.ConnectionId = Context.ConnectionId;
-        response.Data = new RoomResponse(room.HostUserId, room.RoomCode, "TODO", room.RoomName, user.ToUserResponse());
+        var roomUsers = room.Users.Select(u => u.ToUserResponse()).ToList();
+        var usersJoinedResponse =
+            new UserJoinedResponse(room.RoomCode, roomUsers);
+        await Clients.Group(room.RoomCode).SendAsync("UserJoined", usersJoinedResponse);
 
+        user.ConnectionId = Context.ConnectionId;
+        response.Data = new RejoinRoomResponse(room.HostUserId, room.RoomCode, "TODO", room.RoomName, user.ToUserResponse(), roomUsers);
+        
         return response;
     }
     

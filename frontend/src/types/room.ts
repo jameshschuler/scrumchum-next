@@ -20,3 +20,7 @@ export interface RoomResponse {
   roomName?: string;
   user: User;
 }
+
+export interface RejoinRoomResponse extends RoomResponse {
+  users: Array<User>;
+}
