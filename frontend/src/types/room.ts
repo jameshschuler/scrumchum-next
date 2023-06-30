@@ -13,6 +13,12 @@ export interface JoinRoomRequest {
   userRole: UserRole;
 }
 
+export interface CreateRoomRequest {
+  roomName: string;
+  username: string;
+  userRole: UserRole;
+}
+
 export interface RoomResponse {
   hostUserId: string;
   roomCode: string;

@@ -56,7 +56,9 @@ import { useRouter } from 'vue-router';
 const username = ref<string>();
 const usernameRules = [
   (value: string) => {
-    if (value?.length > 0 && value.length <= 20) return true;
+    if (value?.length > 0 && value.length <= 20) {
+      return true;
+    }
 
     return 'Username must be 1-20 characters.';
   },
@@ -65,7 +67,9 @@ const usernameRules = [
 const roomCode = ref<string>();
 const roomCodeRules = [
   (value: string) => {
-    if (value?.length === 4) return true;
+    if (value?.length === 4) {
+      return true;
+    }
 
     return 'Room Code must be 4 characters.';
   },
@@ -73,8 +77,10 @@ const roomCodeRules = [
 
 const userRole = ref<number>();
 const userRoleRules = [
-  (value: number | undefined | null) => {
-    if (value) return true;
+  (value: number | undefined) => {
+    if (value !== undefined) {
+      return true;
+    }
 
     return 'Must select User Role.';
   },
@@ -90,7 +96,6 @@ const { storeUserId } = useStorage();
 const roomStore = useRoomStore();
 
 async function handleSubmit(_: any) {
-  console.log(userRole.value);
   isSubmitting.value = true;
   const response = await connection.invoke<HubResponse<RoomResponse>>('JoinRoom', {
     roomCode: roomCode.value,
